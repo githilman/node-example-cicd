@@ -1,0 +1,18 @@
+name: Deploy to Server
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Create short SHA
+      run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+    - name: Build and push Docker image
+      run: |
+        docker build -t maulanadsgn/node-example-cicd:${{ env.SHORT_SHA }} .
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push maulanadsgn/node-example-cicd:${{ env.SHORT_SHA }}
